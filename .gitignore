@@ -51,10 +51,10 @@ Module.symvers
 Mkfile.old
 dkms.conf
 dvt
-dvt/*
+dvt/
 .jxbrowser.userdata
-.jxbrowser.userdata/*
+.jxbrowser.userdata/
 .metadata
-.metadata/*
+.metadata/
 RemoteSystemsTempFiles
-RemoteSystemsTempFiles/*
+RemoteSystemsTempFiles/
