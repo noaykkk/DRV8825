@@ -26,6 +26,7 @@
 // Prototypes
 void DrawCir(void);
 void DrawLine(void);
+void DrawSpiral(void);
 
 int main(void)
 {
@@ -61,7 +62,7 @@ int main(void)
 
     //Set PWM duty-50% (Period /2)
     PWMPulseWidthSet(PWM1_BASE, PWM_OUT_5,100);
-    PWMPulseWidthSet(PWM1_BASE, PWM_OUT_6,240);
+    PWMPulseWidthSet(PWM1_BASE, PWM_OUT_6,160);
     PWMPulseWidthSet(PWM1_BASE, PWM_OUT_7,200);
 
     // Enable the PWM generator
@@ -76,7 +77,7 @@ int main(void)
 //    uint32_t PinData;
 //    int count=0;
 //
-//    for(count=0; count<1800;count++)
+//    for(count=0; count<300;count++)
 //    {
 //        PinData = GPIOPinRead(GPIO_PORTF_BASE, GPIO_PIN_0);
 //
@@ -94,6 +95,7 @@ int main(void)
 //    PWMOutputState(PWM1_BASE, ACTU_ON, false);
 //    DrawCir();
     DrawLine();
+//    DrawSpiral();
 }
 
 void DrawCir(void)
@@ -251,7 +253,7 @@ void DrawLine(void)
 {
     int count=0;
     // Move to the pick up position
-    for(count=0; count<1800;count++){
+    for(count=0; count<250;count++){
         GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, STEP_ON+STEP_L);
 
         SysCtlDelay(20000);
@@ -289,7 +291,7 @@ void DrawLine(void)
     SysCtlDelay(20000000);
 
     // Move to the spin position
-    for(count=0; count<3100;count++){
+    for(count=0; count<4650;count++){
         GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, STEP_ON+STEP_L+ELEM_ON);
 
         SysCtlDelay(20000);
@@ -340,7 +342,158 @@ void DrawLine(void)
     SysCtlDelay(20000000);
 
     // Back to pick up position
-    for(count=0; count<5100;count++){
+    for(count=0; count<6650;count++){
+        GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, ELEM_ON+STEP_ON+STEP_R);
+
+        SysCtlDelay(20000);
+
+        GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, ELEM_ON+STEP_OFF+STEP_R);
+
+        SysCtlDelay(20000);
+    }
+    // Start drop off tools
+    PWMOutputState(PWM1_BASE, ACTU_ON, true);
+    for(count=0; count<50;count++){
+        GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, ELEM_ON+ACTU_EX);
+
+        SysCtlDelay(20000);
+
+        GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, ELEM_ON+ACTU_EX);
+
+        SysCtlDelay(20000);
+    }
+    SysCtlDelay(20000*10000);
+
+    // Cutoff ElecM
+    for(count=0; count<100; count++){
+        GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, ELEM_OFF);
+        SysCtlDelay(20000);
+    }
+    SysCtlDelay(20000*2000);
+    // Finish drop off tools
+    for(count=0; count<4000;count++){
+        GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, ELEM_OFF+ACTU_SH);
+
+        SysCtlDelay(20000);
+
+        GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, ELEM_OFF+ACTU_SH);
+
+        SysCtlDelay(20000);
+    }
+    PWMOutputState(PWM1_BASE, ACTU_ON, false);
+    SysCtlDelay(20000000);
+
+    // Back to source position
+    for(count=0; count<250;count++){
+        GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, ELEM_ON+STEP_ON+STEP_R);
+
+        SysCtlDelay(20000);
+
+        GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, ELEM_ON+STEP_OFF+STEP_R);
+
+        SysCtlDelay(20000);
+    }
+
+    // Stop the actuator
+    GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, 0x00);
+}
+
+void DrawSpiral(void)
+{
+    int count=0;
+    // Move to the pick up position
+    for(count=0; count<1800;count++){
+        GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, STEP_ON+STEP_L);
+
+        SysCtlDelay(20000);
+
+        GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, STEP_OFF+STEP_L);
+
+        SysCtlDelay(20000);
+    }
+    SysCtlDelay(20000000);
+
+    // Start pick up
+    PWMOutputState(PWM1_BASE, ACTU_ON, true);
+    for(count=0; count<50;count++){
+        GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, ELEM_ON+ACTU_EX);
+
+        SysCtlDelay(20000);
+
+        GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, ELEM_ON+ACTU_EX);
+
+        SysCtlDelay(20000);
+    }
+    SysCtlDelay(20000*10000);
+
+    // Finish pick then return
+    for(count=0; count<4000;count++){
+        GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, ELEM_ON+ACTU_SH);
+
+        SysCtlDelay(20000);
+
+        GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, ELEM_ON+ACTU_SH);
+
+        SysCtlDelay(20000);
+    }
+    PWMOutputState(PWM1_BASE, ACTU_ON, false);
+    SysCtlDelay(20000000);
+
+    // Move to the spin position
+    for(count=0; count<1300;count++){
+        GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, STEP_ON+STEP_L+ELEM_ON);
+
+        SysCtlDelay(20000);
+
+        GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, STEP_OFF+STEP_L+ELEM_ON);
+
+        SysCtlDelay(20000);
+    }
+    SysCtlDelay(20000000);
+
+    // Start drop off
+    PWMOutputState(PWM1_BASE, ACTU_ON, true);
+    for(count=0; count<50;count++){
+        GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, ELEM_ON+ACTU_EX);
+
+        SysCtlDelay(20000);
+
+        GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, ELEM_ON+ACTU_EX);
+
+        SysCtlDelay(20000);
+    }
+    SysCtlDelay(20000*10000);
+
+    // Start draw line and spin the pan
+    PWMOutputState(PWM1_BASE, DCM_ON, true);
+    for(count=0; count<2500;count++){
+            GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, STEP_ON+STEP_L+ELEM_ON);
+
+            SysCtlDelay(20000);
+
+            GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, STEP_OFF+STEP_L+ELEM_ON);
+
+            SysCtlDelay(20000);
+    }
+    PWMOutputState(PWM1_BASE, DCM_ON, false);
+    SysCtlDelay(20000*4000);
+
+
+    // Finish draw then return
+    for(count=0; count<4000;count++){
+        GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, ELEM_ON+ACTU_SH);
+
+        SysCtlDelay(20000);
+
+        GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, ELEM_ON+ACTU_SH);
+
+        SysCtlDelay(20000);
+    }
+    PWMOutputState(PWM1_BASE, ACTU_ON, false);
+    SysCtlDelay(20000000);
+
+    // Back to pick up position
+    for(count=0; count<3800;count++){
         GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, ELEM_ON+STEP_ON+STEP_R);
 
         SysCtlDelay(20000);
@@ -395,3 +548,4 @@ void DrawLine(void)
     // Stop the actuator
     GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, 0x00);
 }
+
